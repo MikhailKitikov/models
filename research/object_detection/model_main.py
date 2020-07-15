@@ -51,8 +51,18 @@ flags.DEFINE_string(
     'writing resulting metrics to `model_dir`.')
 flags.DEFINE_boolean(
     'run_once', False, 'If running in eval-only mode, whether to run just '
-    'one round of eval vs running continuously (default).'
-)
+    'one round of eval vs running continuously (default).')
+
+flags.DEFINE_boolean(
+    'stop_if_val_loss_not_decreasing', False, 'Stopping training if '
+    'validation loss does not decrease `max_steps_without_decrease` steps.')
+flags.DEFINE_integer('max_steps_without_decrease', 20, 'Will stop training '
+                     'if validation loss does not decrease. Only used if '
+                     '`stop_if_val_loss_not_decreasing` is True.')
+flags.DEFINE_integer('min_steps_early_stopping', 0, 'Activates early stopping '
+                     'only after some num of steps. Only used if '
+                     '`stop_if_val_loss_not_decreasing` is True.')
+
 FLAGS = flags.FLAGS
 
 
@@ -95,6 +105,9 @@ def main(unused_argv):
   else:
     train_spec, eval_specs = model_lib.create_train_and_eval_specs(
         estimator,
+        stop_if_val_loss_not_decreasing,
+        max_steps_without_decrease,
+        min_steps_early_stopping,
         train_input_fn,
         eval_input_fns,
         eval_on_train_input_fn,
