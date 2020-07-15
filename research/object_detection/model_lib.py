@@ -620,7 +620,11 @@ def create_estimator_and_inputs(run_config,
       train_steps=train_steps)
 
 
-def create_train_and_eval_specs(train_input_fn,
+def create_train_and_eval_specs(estimator,
+                                stop_if_val_loss_not_decreasing,
+                                max_steps_without_decrease,
+                                min_steps_early_stopping,
+                                train_input_fn,
                                 eval_input_fns,
                                 eval_on_train_input_fn,
                                 predict_input_fn,
@@ -631,6 +635,10 @@ def create_train_and_eval_specs(train_input_fn,
   """Creates a `TrainSpec` and `EvalSpec`s.
 
   Args:
+    estimator: Estimator object
+    stop_if_val_loss_not_decreasing: 'val loss no decrease' early stopping callback enabling
+    max_steps_without_decrease: num of steps for early stopping
+    min_steps_early_stopping: min num of steps before early stopping
     train_input_fn: Function that produces features and labels on train data.
     eval_input_fns: A list of functions that produce features and labels on eval
       data.
@@ -648,8 +656,17 @@ def create_train_and_eval_specs(train_input_fn,
     True, the last `EvalSpec` in the list will correspond to training data. The
     rest EvalSpecs in the list are evaluation datas.
   """
+  hooks = None  
+  if stop_if_val_loss_not_decreasing:
+    early_stopping = tf.estimator.experimental.stop_if_no_decrease_hook(
+      estimator,
+      metric_name='loss',
+      max_steps_without_decrease=max_steps_without_decrease,
+      min_steps=min_steps_early_stopping)  
+    hooks = [early_stopping]
+  
   train_spec = tf.estimator.TrainSpec(
-      input_fn=train_input_fn, max_steps=train_steps)
+      input_fn=train_input_fn, max_steps=train_steps, hooks=hooks)
 
   if eval_spec_names is None:
     eval_spec_names = [str(i) for i in range(len(eval_input_fns))]
