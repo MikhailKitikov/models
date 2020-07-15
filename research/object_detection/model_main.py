@@ -94,6 +94,7 @@ def main(unused_argv):
                                 train_steps, name)
   else:
     train_spec, eval_specs = model_lib.create_train_and_eval_specs(
+        estimator,
         train_input_fn,
         eval_input_fns,
         eval_on_train_input_fn,
