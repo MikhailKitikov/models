@@ -688,9 +688,15 @@ def create_train_and_eval_specs(estimator,
             input_fn=eval_input_fn,
             steps=None,
             exporters=exporter,
-            start_delay_secs=10,
-            throttle_secs=20))
-
+            start_delay_secs=1,
+            throttle_secs=2))
+    
+  msg = '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + str(len(eval_specs))
+  tf.logging.warning(msg)
+  if eval_specs:
+    msg = '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + str(eval_specs[0])
+    tf.logging.warning(msg)
+    
   if eval_on_train_data:
     eval_specs.append(
         tf.estimator.EvalSpec(
