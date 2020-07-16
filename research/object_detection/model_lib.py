@@ -687,7 +687,9 @@ def create_train_and_eval_specs(estimator,
             name=eval_spec_name,
             input_fn=eval_input_fn,
             steps=None,
-            exporters=exporter))
+            exporters=exporter,
+            start_delay_secs=10,
+            throttle_secs=20))
 
   if eval_on_train_data:
     eval_specs.append(
